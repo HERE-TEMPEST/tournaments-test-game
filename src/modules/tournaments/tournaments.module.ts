@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule } from '@nestjs/jwt';
+import { ScheduleModule } from '@nestjs/schedule';
 
 import { JwtConfigService } from '@tournaments/config';
 import { WsAuthGuard } from '@tournaments/auth';
@@ -17,9 +18,12 @@ import {
   TOURNAMENTS_REPOSITORY_TOKEN,
   TOURNAMENTS_MEMBERS_REPOSITORY_TOKEN,
 } from './infrastructure';
+import { UsersModule } from '../users';
 
 @Module({
   imports: [
+    UsersModule,
+    ScheduleModule.forRoot(),
     TypeOrmModule.forFeature(
       [TournamentEntity, TournamentMemberEntity],
       TOURNAMENT_RELATIONS_CONNECTION,

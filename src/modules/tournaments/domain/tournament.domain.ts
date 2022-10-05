@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 
 import {
   TOURNAMENTS_MEMBERS_REPOSITORY_TOKEN,
@@ -14,6 +14,7 @@ import {
   GetTournamentWinnerParams,
   RemoveUserToTournamentParams,
   CreateTournamentParams,
+  GetTournamentWinnerResult,
 } from './tournament-domain.type';
 
 @Injectable()
@@ -44,19 +45,17 @@ export class TournamentDomain {
   ): Promise<TournamentMemberModel | null> {
     const { tournamentId, userId } = params;
 
-    const isExists =
-      await this.tournamentsMembersRepository.existsUserInTournament({
-        tournamentId,
-        userId,
-      });
-
-    if (isExists) {
-      const member = await this.tournamentsMembersRepository.getMemberById({
+    const member =
+      await this.tournamentsMembersRepository.getMemberByIdAndTournamentId({
         memberId: userId,
+        tournamentId,
       });
 
+    if (member) {
       if (!member.tournament.isStarted) {
         return member;
+      } else {
+        return null;
       }
     }
 
@@ -91,24 +90,45 @@ export class TournamentDomain {
 
   async getTournamentWinner(
     params: GetTournamentWinnerParams,
-  ): Promise<TournamentMemberModel | null> {
+  ): Promise<GetTournamentWinnerResult> {
     const { tournamentId } = params;
+
+    const tournament = await this.tournamentsRepository.getTournamentById({
+      id: tournamentId,
+    });
+
+    if (!tournament) {
+      throw new BadRequestException();
+    }
 
     const members =
       await this.tournamentsMembersRepository.getMembersByTournamentId({
         id: tournamentId,
       });
 
+    if (!tournament.isStarted) {
+      return {
+        tournament,
+        winner: null,
+      };
+    }
+
     const res = members.every(
       (member: TournamentMemberModel) => member.score !== -1,
     );
 
     if (res) {
-      return members.reduce((currentWinner, member) => {
-        return currentWinner.score > member.score ? currentWinner : member;
-      });
+      return {
+        tournament,
+        winner: members.reduce((currentWinner, member) => {
+          return currentWinner.score > member.score ? currentWinner : member;
+        }),
+      };
     }
 
-    return null;
+    return {
+      tournament,
+      winner: null,
+    };
   }
 }

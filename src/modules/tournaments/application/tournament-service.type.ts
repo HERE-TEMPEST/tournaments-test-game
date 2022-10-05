@@ -45,3 +45,7 @@ export interface RemoveUserFromTournamentParams {
   userId: string;
   tournamentId: number;
 }
+
+export interface CheckTournamentEndParams {
+  tournamentId: number;
+}

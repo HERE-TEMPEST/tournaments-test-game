@@ -14,9 +14,8 @@ export class CreateTournamentInput {
   capacity: number;
 
   @ApiProperty({ nullable: false, type: String })
-  @IsNumber()
+  @IsString()
   @IsNotEmpty()
-  @Min(1)
   region: string;
 
   @ApiProperty({ nullable: false, type: Number })

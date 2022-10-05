@@ -25,8 +25,6 @@ export class AwsS3Service {
   constructor(@Inject(AWS_S3_MODULE_TOKEN) options: AwsS3ModuleOptions) {
     const { acl, bucketName, expiresIn, ...s3Options } = options;
 
-    console.log('some');
-
     this.acl = acl;
     this.bucketName = bucketName;
     this.expiresIn = expiresIn;

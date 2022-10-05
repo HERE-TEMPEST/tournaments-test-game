@@ -1,4 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
+import { SchedulerRegistry } from '@nestjs/schedule';
 import { CronJob } from 'cron';
 
 import { TournamentDomain, TournamentMemberModel } from '../domain';
@@ -19,7 +20,9 @@ import {
   AddResultParams,
   GetTournamentWinnerParams,
   RemoveUserFromTournamentParams,
+  CheckTournamentEndParams,
 } from './tournament-service.type';
+import { UserModel, UsersService } from '../../users';
 
 @Injectable()
 export class TournamentsService {
@@ -29,6 +32,8 @@ export class TournamentsService {
     private readonly tournamentRepository: TournamentRepository,
     @Inject(TOURNAMENTS_MEMBERS_REPOSITORY_TOKEN)
     private readonly tournamentMembersRepository: TournamentMemberRepository,
+    private readonly scheduleService: SchedulerRegistry,
+    private readonly usersService: UsersService,
   ) {}
 
   async createTournament(
@@ -97,10 +102,11 @@ export class TournamentsService {
     // Cron
     if (isStartedGame) {
       const cron = new CronJob(`*/${tournament.duration} * * * *`, async () => {
-        console.log('cron!');
         cron.stop();
         await endedTournamentCallback();
       });
+      this.scheduleService.addCronJob(`tournament:${tournament.id}`, cron);
+
       cron.start();
     }
 
@@ -111,18 +117,20 @@ export class TournamentsService {
 
   async removeUserFromTournament(
     params: RemoveUserFromTournamentParams,
-  ): Promise<void> {
+  ): Promise<boolean> {
     const { tournamentId, userId } = params;
 
-    const member = await this.tournamentDomain.removeUserFromTournament({
+    const isDeleted = await this.tournamentDomain.removeUserFromTournament({
       tournamentId,
     });
 
-    if (member)
+    if (isDeleted) {
       await this.tournamentMembersRepository.delete({
         memberId: userId,
         tournament: { id: tournamentId },
       });
+    }
+    return isDeleted;
   }
 
   async addResult(params: AddResultParams) {
@@ -139,15 +147,42 @@ export class TournamentsService {
     );
   }
 
-  async getTournamentWinner(
-    params: GetTournamentWinnerParams,
+  async checkTournamentEnd(
+    params: CheckTournamentEndParams,
   ): Promise<TournamentMemberModel | null> {
     const { tournamentId } = params;
 
-    const winner = await this.tournamentDomain.getTournamentWinner({
+    const { winner } = await this.tournamentDomain.getTournamentWinner({
       tournamentId,
     });
 
+    if (winner) {
+      // if everyone left the tournament ahead of schedule
+      const cron = this.scheduleService.getCronJob(
+        `tournament:${tournamentId}`,
+      );
+      cron.stop();
+      this.scheduleService.deleteCronJob(`tournament:${tournamentId}`);
+    }
+
     return winner;
+  }
+
+  async getTournamentWinner(
+    params: GetTournamentWinnerParams,
+  ): Promise<UserModel | null> {
+    const { tournamentId } = params;
+
+    const { winner } = await this.tournamentDomain.getTournamentWinner({
+      tournamentId,
+    });
+
+    if (winner) {
+      const { memberId } = winner;
+
+      return this.usersService.getUserInfo({ userId: memberId });
+    }
+
+    return null;
   }
 }

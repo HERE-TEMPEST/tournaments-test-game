@@ -3,7 +3,7 @@ import { InjectEntityManager } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
 import {
   ExistsUserInTournament,
-  GetMemberByMemberId,
+  GetMemberByIdAndTournamentId,
   GetMembersByTournamentIdParams,
   ITournamentMembersRepository,
   TournamentMemberModel,
@@ -45,11 +45,13 @@ export class TournamentMemberRepository
     return count > 0;
   }
 
-  getMemberById(params: GetMemberByMemberId): Promise<TournamentMemberModel> {
-    const { memberId } = params;
+  getMemberByIdAndTournamentId(
+    params: GetMemberByIdAndTournamentId,
+  ): Promise<TournamentMemberModel> {
+    const { memberId, tournamentId } = params;
 
     return this.findOne({
-      where: { memberId },
+      where: { memberId, tournament: { id: tournamentId } },
       relations: { tournament: true },
     });
   }

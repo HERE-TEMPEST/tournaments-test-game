@@ -7,8 +7,8 @@ export interface ITournamentMembersRepository {
 
   existsUserInTournament(params: ExistsUserInTournament): Promise<boolean>;
 
-  getMemberById(
-    params: GetMemberByMemberId,
+  getMemberByIdAndTournamentId(
+    params: GetMemberByIdAndTournamentId,
   ): Promise<TournamentMemberModel | null>;
   // takeSlot(params: TakeSlotParams): Promise<TournamentMemberModel | null>;
   // vacateSlot(params: VacateSlotParams): Promise<TournamentMemberModel | null>;
@@ -19,4 +19,7 @@ export interface ExistsUserInTournament {
   userId: string;
   tournamentId: number;
 }
-export type GetMemberByMemberId = Pick<TournamentMemberModel, 'memberId'>;
+export interface GetMemberByIdAndTournamentId
+  extends Pick<TournamentMemberModel, 'memberId'> {
+  tournamentId: number;
+}

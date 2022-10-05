@@ -1,11 +1,15 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
 import { AuthGuard } from '@tournaments/auth';
 
 import { CreateTournamentInput } from './inputs';
 import { TournamentsService } from '../application';
-import { CreateTournamentResult, GetAllTournamentsResult } from './results';
+import {
+  CreateTournamentResult,
+  GetAllTournamentsResult,
+  GetTournamentWinnerResult,
+} from './results';
 
 @ApiTags('Tournaments')
 @UseGuards(AuthGuard)
@@ -20,6 +24,19 @@ export class TournamentsController {
     const { tournaments } = await this.tournamentService.all();
 
     return { data: tournaments };
+  }
+
+  @ApiOkResponse({ type: GetTournamentWinnerResult })
+  @ApiBearerAuth()
+  @Get('/:id')
+  async getTournamentWinner(
+    @Param('id') id: string,
+  ): Promise<GetTournamentWinnerResult> {
+    const winner = await this.tournamentService.getTournamentWinner({
+      tournamentId: +id,
+    });
+
+    return { data: winner };
   }
 
   @ApiOkResponse({ type: CreateTournamentResult })

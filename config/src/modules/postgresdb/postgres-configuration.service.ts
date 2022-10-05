@@ -25,7 +25,7 @@ export class PostgresConfigService implements TypeOrmOptionsFactory {
       database,
       entities: this.entities,
       synchronize: true,
-      logging: true,
+      // logging: true,
       name: connectionName,
     };
   }

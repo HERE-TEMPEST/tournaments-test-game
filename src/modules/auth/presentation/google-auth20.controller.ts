@@ -32,7 +32,9 @@ export class GoogleAuth20Controller {
   async handleGoogleRedirect(@Req() request: Request) {
     const user = request.user as any;
 
-    const accessToken = await this.authService.googleLogin(user);
+    console.log('some');
+
+    const { accessToken } = await this.authService.googleLogin(user);
 
     const redirectUri = this.getRedirectUri({ accessToken });
 
@@ -42,7 +44,7 @@ export class GoogleAuth20Controller {
     };
   }
 
-  private getRedirectUri({ accessToken }) {
+  private getRedirectUri({ accessToken }: { accessToken: string }) {
     const redirectUrl = new URL(this.redirectToUi);
 
     redirectUrl.pathname = '/auth20/callback';

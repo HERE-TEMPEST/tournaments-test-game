@@ -80,7 +80,7 @@ export class TournamentsGateway
       const { userId } = client.user;
       const { tournamentId } = client.currentTournament;
 
-      await this.tournamentsService.removeUserFromTournament({
+      const isDeleted = await this.tournamentsService.removeUserFromTournament({
         tournamentId,
         userId,
       });
@@ -88,6 +88,10 @@ export class TournamentsGateway
       this.tournamentsNamespace
         .to(String(tournamentId))
         .emit('user_disconnected');
+
+      if (!isDeleted) {
+        this.result(client, { score: 0 });
+      }
 
       client.leave(String(tournamentId));
 
@@ -115,7 +119,7 @@ export class TournamentsGateway
         tournamentId,
       });
 
-      const winner = await this.tournamentsService.getTournamentWinner({
+      const winner = await this.tournamentsService.checkTournamentEnd({
         tournamentId,
       });
 
@@ -129,7 +133,7 @@ export class TournamentsGateway
 
   async handleDisconnect(client: Socket) {
     if (client.currentTournament) {
-      await this.result(client, { score: 0 });
+      await this.leaveFromTournament(client);
     }
   }
 
