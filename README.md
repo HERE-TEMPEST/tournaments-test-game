@@ -18,7 +18,7 @@
 
 ## Running the application
 
-> Since I **don't have** an S3/Azure account, I will use minio instead of S3, but to use it I will use aws-sdk
+> Since I **don't have** an AWS/Azure account, I will use minio instead of S3, but to use it I will use aws-sdk
 
 > First you need to set the environment values ​​using **`.env.example`** file as an example
 
