@@ -5,7 +5,7 @@ services:
   mongodb:
     image: mongo:latest
     ports:
-      - 27017:27017
+      - ${MONGO_PORT:?err}:27017
     environment:
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_USERNAME:?err}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD:?err}
@@ -30,7 +30,7 @@ services:
   postgres:
     image: postgres
     ports:
-      - "0.0.0.0:8432:5432"
+      - ${POSTGRES_PORT:?err}:5432
     environment:
       - POSTGRES_USER=${POSTGRES_USER:?err}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:?err}
@@ -41,11 +41,16 @@ services:
       - ./db/postgres-init/pg-database.init.sql:/docker-entrypoint-initdb.d/pg-database.init.sql
 
   # app:
-    # build: ./
-    # ports:
-      # - ${APP_PORT:?err}:${APP_PORT}
-    # command: yarn run start:dev
-    # depends_on:
-      # - mongodb
-      # - minio
-      # - postgres
+  #   build: ./
+  #   working_dir: "/app"
+  #   command: node ./dist/main.js
+  #   expose:
+  #     - ${APP_PORT:?err}
+  #   ports:
+  #     - ${APP_PORT:?err}:${APP_PORT:?err}
+  #   env_file:
+  #     - .env
+  #   depends_on:
+  #     - postgres
+  #     - minio
+  #     - mongodb

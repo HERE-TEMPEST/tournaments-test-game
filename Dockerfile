@@ -1,19 +1,16 @@
-FROM node:14.18.2-slim as node-build
+FROM node:14.18.2-slim
 
-WORKDIR /
+WORKDIR /app
 
-COPY yarn.lock package.json ./
+COPY node_modules/ ./node_modules/
+
+COPY package*.json ./
+COPY yarn*.lock ./
 
 RUN yarn install
 
 COPY . .
 
-RUN yarn run build
+RUN npm install -g typescript
 
-
-FROM node:14.18.2-slim
-
-WORKDIR /
-
-COPY --from=node-build /dist ./dist
-COPY --from=node-build /node_modules ./node_modules
+RUN tsc
