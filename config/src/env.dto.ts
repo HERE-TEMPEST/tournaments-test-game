@@ -1,6 +1,6 @@
 import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
-export class EnvironmentVariablesDto {
+export class EnvSchema {
   @IsNumber()
   @IsNotEmpty()
   APP_PORT: number;

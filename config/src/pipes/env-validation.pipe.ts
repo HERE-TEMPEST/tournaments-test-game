@@ -1,16 +1,12 @@
 import { plainToInstance } from 'class-transformer';
 import { validateSync } from 'class-validator';
 
-import { EnvironmentVariablesDto } from '../env.dto';
+import { EnvSchema } from '../env.dto';
 
 export const validateConfig = (configuration: Record<string, any>) => {
-  const validatedConfig = plainToInstance(
-    EnvironmentVariablesDto,
-    configuration,
-    {
-      enableImplicitConversion: true,
-    },
-  );
+  const validatedConfig = plainToInstance(EnvSchema, configuration, {
+    enableImplicitConversion: true,
+  });
 
   const errors = validateSync(validatedConfig, {
     skipMissingProperties: false,
