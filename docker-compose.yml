@@ -1,7 +1,6 @@
 version: '3.8'
 
 services:
-
   mongodb:
     image: mongo:latest
     ports:
@@ -18,8 +17,8 @@ services:
     image: minio/minio
     command: server --console-address ":9001" /data/
     ports:
-      - "9000:9000"
-      - "9001:9001"
+      - '9000:9000'
+      - '9001:9001'
     environment:
       - MINIO_ROOT_USER=${AWS_ACCESS_KEY:?err}
       - MINIO_ROOT_PASSWORD=${AWS_SECRET_ACCESS_KEY:?err}
@@ -37,20 +36,5 @@ services:
       - POSTGRES_PORT=${POSTGRES_PORT:?err}
       - POSTGRES_HOST=${POSTGRES_HOST:?err}
     volumes:
-      - "./docker-volumes/postgres:/var/lib/postgresql"
+      - './docker-volumes/postgres:/var/lib/postgresql'
       - ./db/postgres-init/pg-database.init.sql:/docker-entrypoint-initdb.d/pg-database.init.sql
-
-  # app:
-  #   build: ./
-  #   working_dir: "/app"
-  #   command: node ./dist/main.js
-  #   expose:
-  #     - ${APP_PORT:?err}
-  #   ports:
-  #     - ${APP_PORT:?err}:${APP_PORT:?err}
-  #   env_file:
-  #     - .env
-  #   depends_on:
-  #     - postgres
-  #     - minio
-  #     - mongodb
