@@ -1,4 +1,4 @@
-import { Provider } from '@nestjs/common';
+import { Global, Provider } from '@nestjs/common';
 import { DynamicModule, Module } from '@nestjs/common';
 
 import { AwsS3Service } from './aws-s3.service';
@@ -12,6 +12,7 @@ import { AwsS3ModuleOptionsFactory } from './types';
   imports: [],
   exports: [AwsS3Service],
 })
+@Global()
 export class AwsS3Module {
   static forRoot(options: AwsS3ModuleOptions): DynamicModule {
     return {

@@ -8,7 +8,7 @@ export class TournamentMemberEntity implements TournamentMemberModel {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ nullable: false })
+  @Column({ nullable: false, unique: true })
   memberId: string;
 
   @Column({ default: 0 })
